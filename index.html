@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-anim="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--t:1}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html[data-theme=dark]{--bg:#0d0f14;--bg2:#161a23;--card:rgba(255,255,255,.06);--cardh:rgba(255,255,255,.11);--text:#eef1f7;--sub:#9aa3b5;--line:rgba(255,255,255,.1);--ac:#6c8cff;--ac2:#b06cff;color-scheme:dark}
+html[data-theme=light]{--bg:#eef1f8;--bg2:#fff;--card:rgba(255,255,255,.75);--cardh:#fff;--text:#161a23;--sub:#667085;--line:rgba(20,30,60,.1);--ac:#3b6cff;--ac2:#8a5cff;color-scheme:light}
+html[data-theme=red]{--bg:#150808;--bg2:#220c0e;--card:rgba(255,255,255,.06);--cardh:rgba(255,255,255,.12);--text:#fdeeee;--sub:#c49a9c;--line:rgba(255,120,120,.16);--ac:#ff3b4e;--ac2:#ff7a45;color-scheme:dark}
+html[data-theme=orange]{--bg:#150e06;--bg2:#221608;--card:rgba(255,255,255,.06);--cardh:rgba(255,255,255,.12);--text:#fff3e6;--sub:#c9a982;--line:rgba(255,170,80,.18);--ac:#ff9500;--ac2:#ffcc33;color-scheme:dark}
+html[data-anim=reduced]{--t:.4}
+html[data-anim=off] *{animation:none!important;transition:none!important}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#000;color:var(--text);min-height:100vh;overflow:hidden}
+button{font:inherit;border:0;cursor:pointer;color:inherit}
+/* calculator (always classic dark) */
+#calc{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;transition:opacity calc(var(--t)*600ms) ease,transform calc(var(--t)*600ms) cubic-bezier(.7,0,.3,1),filter calc(var(--t)*600ms)}
+#calc.out{opacity:0;transform:scale(1.15);filter:blur(12px);pointer-events:none}
+.calc{width:340px;max-width:100%;padding:16px}
+.disp{color:#fff;text-align:right;font-size:4rem;font-weight:300;padding:10px 8px 14px;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.disp small{font-size:1rem;color:#888;min-height:1.3em}
+.disp span{white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid button{aspect-ratio:1;border-radius:50%;font-size:1.7rem;background:#333;color:#fff;transition:filter .12s}
+.grid button.f{background:#a5a5a5;color:#000}
+.grid button.op{background:#ff9f0a}
+.grid button.zero{grid-column:span 2;aspect-ratio:auto;border-radius:999px;text-align:left;padding-left:30px}
+.grid button:active{filter:brightness(1.5)}
+/* hub */
+#hub{position:fixed;inset:0;display:flex;background:var(--bg);opacity:0;visibility:hidden;transition:opacity calc(var(--t)*700ms) ease calc(var(--t)*250ms);overflow:hidden}
+#hub.on{opacity:1;visibility:visible}
+.blobs{position:absolute;inset:0;overflow:hidden;z-index:0}
+.blobs i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(90px);opacity:.28;animation:float calc(22s/max(var(--t),.2)) ease-in-out infinite alternate}
+.blobs i:nth-child(1){background:var(--ac);top:-15vmax;left:-10vmax}
+.blobs i:nth-child(2){background:var(--ac2);bottom:-18vmax;right:-12vmax;animation-delay:-8s}
+.blobs i:nth-child(3){background:var(--ac);width:28vmax;height:28vmax;top:40%;left:45%;opacity:.14;animation-delay:-14s}
+@keyframes float{to{transform:translate(8vmax,6vmax) scale(1.2) rotate(40deg)}}
+aside{position:relative;z-index:2;width:230px;padding:22px 14px;display:flex;overflow-y:auto;flex-shrink:0;flex-direction:column;gap:6px;background:var(--card);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border-right:1px solid var(--line);transform:translateX(-30px);opacity:0;transition:all calc(var(--t)*700ms) cubic-bezier(.2,.8,.2,1) calc(var(--t)*450ms)}
+#hub.on aside{transform:none;opacity:1}
+.logo{font-weight:800;font-size:1.35rem;padding:6px 12px 18px;background:linear-gradient(120deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.5px}
+.tab{position:relative;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:transparent;color:var(--sub);text-align:left;font-weight:600;transition:all calc(var(--t)*250ms) ease}
+.tab:hover{background:var(--card);color:var(--text);transform:translateX(4px)}
+.tab.act{background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 8px 24px -8px var(--ac)}
+.tab .ic{font-size:1.2rem;width:24px;text-align:center}
+.sp{flex:1}
+main{position:relative;z-index:1;flex:1;overflow-y:auto;padding:34px clamp(16px,4vw,48px) 60px}
+.page{animation:pg calc(var(--t)*550ms) cubic-bezier(.2,.8,.2,1) both}
+@keyframes pg{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+h2{margin:0 0 4px;font-size:2rem;letter-spacing:-.8px}
+.sub{color:var(--sub);margin:0 0 22px}
+.search{width:100%;max-width:440px;padding:13px 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;outline:0;margin-bottom:24px;transition:all calc(var(--t)*300ms);backdrop-filter:blur(12px)}
+.search:focus{border-color:var(--ac);box-shadow:0 0 0 4px color-mix(in srgb,var(--ac) 25%,transparent);max-width:520px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+.item{position:relative;overflow:hidden;padding:26px 14px 20px;border-radius:22px;background:var(--card);border:1px solid var(--line);text-align:center;font-weight:600;backdrop-filter:blur(14px);animation:pg calc(var(--t)*600ms) cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*calc(var(--t)*55ms));transition:transform calc(var(--t)*350ms) cubic-bezier(.2,.8,.2,1),box-shadow calc(var(--t)*350ms),background calc(var(--t)*300ms)}
+.item::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--ac) 35%,transparent),transparent 60%);opacity:0;transition:opacity .3s}
+.item:hover{transform:translateY(-8px) scale(1.03);background:var(--cardh);box-shadow:0 22px 40px -18px var(--ac)}
+.item:hover::before{opacity:1}
+.item:active{transform:scale(.97)}
+.item .e{position:relative;display:grid;place-items:center;width:64px;height:64px;margin:0 auto 14px;font-size:2rem;border-radius:20px;background:linear-gradient(135deg,var(--ac),var(--ac2));box-shadow:0 10px 24px -10px var(--ac);transition:transform calc(var(--t)*400ms) cubic-bezier(.3,1.6,.5,1)}
+.item:hover .e{transform:rotate(-8deg) scale(1.12)}
+.item span.n{position:relative}
+.empty{color:var(--sub);padding:30px 0}
+/* player */
+#player{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;visibility:hidden;opacity:0;transform:scale(.94) translateY(30px);transition:all calc(var(--t)*450ms) cubic-bezier(.2,.8,.2,1);padding-top:env(safe-area-inset-top,0px)}
+#player.on{visibility:visible;opacity:1;transform:none}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--line)}
+.bar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{padding:9px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:600;transition:all .2s}
+.pill:hover{background:var(--ac);color:#fff;transform:translateY(-2px)}
+#frame{flex:1;border:0;width:100%;background:#000}
+/* chat */
+.chat{display:flex;flex-direction:column;height:calc(100vh - 150px);max-width:760px}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:24px;backdrop-filter:blur(14px)}
+.m{max-width:78%;padding:10px 15px;border-radius:20px 20px 20px 6px;background:var(--cardh);border:1px solid var(--line);align-self:flex-start;word-break:break-word;animation:pop calc(var(--t)*350ms) cubic-bezier(.3,1.5,.5,1) both}
+.m.me{align-self:flex-end;border-radius:20px 20px 6px 20px;background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff;border:0}
+.m b{display:block;font-size:.72rem;opacity:.7;margin-bottom:2px}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.9)}}
+.send{display:flex;gap:10px;margin-top:12px}
+.send .search{margin:0;max-width:none;border-radius:16px}
+.send .nm{max-width:130px}
+.go{padding:0 24px;border-radius:16px;background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff;font-weight:700;transition:transform .2s}
+.go:hover{transform:scale(1.06)}
+.on-line{color:var(--sub);margin-bottom:10px;font-size:.9rem}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2ecc71;margin-right:8px;box-shadow:0 0 0 0 #2ecc71;animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px transparent}}
+/* settings */
+.set{max-width:640px;padding:22px;border-radius:24px;background:var(--card);border:1px solid var(--line);margin-bottom:16px;backdrop-filter:blur(14px)}
+.set h3{margin:0 0 14px;font-size:1rem}
+.sw{display:flex;gap:14px;flex-wrap:wrap}
+.sw button{width:74px;text-align:center;background:none;font-size:.82rem;font-weight:600;color:var(--sub)}
+.sw button i{display:block;width:56px;height:56px;margin:0 auto 6px;border-radius:50%;border:3px solid transparent;box-shadow:0 8px 20px -8px #000;transition:all calc(var(--t)*300ms) cubic-bezier(.3,1.6,.5,1)}
+.sw button:hover i{transform:scale(1.1)}
+.sw button.act i{border-color:var(--text);transform:scale(1.12)}
+.sw button.act{color:var(--text)}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.seg button{padding:9px 20px;border-radius:999px;background:none;font-weight:600;color:var(--sub);transition:all calc(var(--t)*300ms)}
+.seg button.act{background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff}
+@media(max-width:700px){
+ #hub{flex-direction:column-reverse}
+ aside{width:100%;flex-direction:row;padding:8px;gap:2px;border-right:0;border-top:1px solid var(--line);overflow-x:auto;transform:translateY(30px)}
+ .logo,.sp{display:none}
+ .tab{flex-direction:column;gap:2px;padding:8px 12px;font-size:.7rem;flex:1;min-width:58px;align-items:center}
+ .tab:hover{transform:none}
+ main{padding:22px 14px 24px}
+ h2{font-size:1.6rem}
+ .chat{height:calc(100vh - 230px)}
+}
+</style>
+</head>
+<body>
+
+<div id="calc"><div class="calc"><div class="disp"><small id="hist"></small><span id="out">0</span></div><div class="grid" id="keys"></div></div></div>
+
+<div id="hub">
+  <div class="blobs"><i></i><i></i><i></i></div>
+  <aside><div class="logo">GameTime</div><div id="tabs" style="display:contents"></div><div class="sp"></div></aside>
+  <main id="view"></main>
+</div>
+
+<div id="player"><div class="bar"><button class="pill" id="closeP">← Back</button><b id="pTitle"></b><button class="pill" id="newTab">Open in new tab</button></div><iframe id="frame" allow="fullscreen; gamepad; autoplay; clipboard-write" allowfullscreen></iframe></div>
+
+<script>
+/* ======= CHAT ROOM NAME (anyone with this name can join; change it to make a new room) ======= */
+const CHAT_TOPIC = "gametime-f9adfbc1aae679cd";
+/* ======= EDIT YOUR LINKS HERE ======= */
+const LINKS = {
+  games: [
+    {name:"1v1.LOL", emoji:"🔫", url:"https://1v1-lol-online.vercel.app/"},
+    {name:"Geometry Dash", emoji:"🔷", url:"https://geometry-dash-unbanned.github.io/"},
+    {name:"Drive Mad", emoji:"🚗", url:"https://sites.google.com/view/games-az/drive-mad"},
+    {name:"FNAF", emoji:"🐻", url:"https://fivenightsatfreddysgame.io/"},
+    {name:"FNAF 2", emoji:"🎭", url:"https://fivenightsatfreddysgame.io/five-nights-at-freddys-2"},
+    {name:"FNAF 3", emoji:"🐰", url:"https://fivenightsatfreddysgame.io/five-nights-at-freddys-3"},
+    {name:"FNAF 4", emoji:"🌙", url:"https://fivenightsatfreddysgame.io/five-nights-at-freddys-4"},
+    {name:"Cookie Clicker", emoji:"🍪", url:"https://cookieclickerplay.github.io/"}
+  ],
+  shows: [
+    {name:"Cinera", emoji:"🎬", url:"https://cinera.marginaltax.com/"}
+  ],
+  proxies: [
+    {name:"Fern Proxy", emoji:"🌿", url:"https://sites.google.com/view/mccrack12/proxies/fern-proxy"},
+    {name:"Ultraviolet Proxy", emoji:"🟣", url:"https://sites.google.com/view/mccrack12/proxies/ultraviolet-proxy"},
+    {name:"Cheesy Proxy", emoji:"🧀", url:"https://sites.google.com/view/mccrack12/proxies/cheesy-proxy"}
+  ],
+  other: [
+    {name:"Mrcrack", emoji:"✨", url:"https://sites.google.com/view/mccrack12/home"}
+  ]
+};
+/* ===================================== */
+const $=id=>document.getElementById(id), root=document.documentElement;
+const store={get(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+root.dataset.theme=store.get("hubTheme","dark");
+root.dataset.anim=store.get("hubAnim","full");
+
+/* Calculator: 0 four times in a row unlocks */
+let cur="0",prev=null,op=null,fresh=false,zr=0;
+[["C","f"],["±","f"],["%","f"],["÷","op"],"7","8","9",["×","op"],"4","5","6",["−","op"],"1","2","3",["+","op"],["0","zero"],".",["=","op"]].forEach(k=>{
+  const [l,c]=Array.isArray(k)?k:[k,""];const b=document.createElement("button");b.textContent=l;b.className=c;b.onclick=()=>press(l);$("keys").appendChild(b);
+});
+function calc(a,b,o){a=+a;b=+b;const r=o=="+"?a+b:o=="−"?a-b:o=="×"?a*b:o=="÷"?(b==0?NaN:a/b):b;return isNaN(r)?"Error":String(+r.toPrecision(12))}
+function press(k){
+  zr=k==="0"?zr+1:0;
+  if(zr>=4){zr=0;unlock();return}
+  if(/\d/.test(k)){cur=(cur==="0"||fresh||cur==="Error")?k:cur+k;fresh=false}
+  else if(k==="."){if(fresh){cur="0";fresh=false}if(!cur.includes("."))cur+="."}
+  else if(k==="C"){cur="0";prev=null;op=null;$("hist").textContent=""}
+  else if(k==="±"){cur=String(-parseFloat(cur)||0)}
+  else if(k==="%"){cur=String(parseFloat(cur)/100)}
+  else if(k==="="){if(op){cur=calc(prev,cur,op);prev=op=null;$("hist").textContent="";fresh=true}}
+  else{if(op&&!fresh)cur=calc(prev,cur,op);prev=cur;op=k;fresh=true;$("hist").textContent=prev+" "+k}
+  $("out").textContent=cur;
+  $("out").style.fontSize=cur.length>9?"2.4rem":cur.length>6?"3.2rem":"";
+}
+addEventListener("keydown",e=>{
+  if($("hub").classList.contains("on")){if(e.key==="`")lock();return}
+  if(/^[0-9.]$/.test(e.key))press(e.key);else if(e.key==="Enter")press("=");else if(e.key==="Escape")press("C");
+  else if("+*/".includes(e.key))press({"+":"+","*":"×","/":"÷"}[e.key]);else if(e.key==="-")press("−");
+});
+
+/* Hub */
+const TABS=[["games","🎮","Games"],["shows","📺","Movies & Shows"],["proxies","🌐","Proxies"],["other","✨","Other"],["chat","💬","Chat"],["settings","⚙️","Settings"]];
+const SUBS={games:"Pick something and play.",shows:"Movies and things to watch.",proxies:"Alternate routes.",other:"Everything else."};
+let tab="games";
+function unlock(){$("calc").classList.add("out");$("hub").classList.add("on");document.title="GameTime";render()}
+function lock(){closePlayer();$("hub").classList.remove("on");$("calc").classList.remove("out");document.title="Calculator";cur="0";prev=op=null;$("out").textContent="0";$("hist").textContent=""}
+function tabs(){
+  $("tabs").innerHTML="";
+  TABS.forEach(([id,ic,l])=>{const b=document.createElement("button");b.className="tab"+(id===tab?" act":"");b.innerHTML='<span class="ic">'+ic+'</span>'+l;b.onclick=()=>{tab=id;render()};$("tabs").appendChild(b)});
+  const x=document.createElement("button");x.className="tab";x.innerHTML='<span class="ic">🔒</span>Lock';x.onclick=lock;$("tabs").appendChild(x);
+}
+function render(){
+  tabs();const v=$("view");v.innerHTML="";const pg=document.createElement("div");pg.className="page";v.appendChild(pg);
+  if(tab==="chat")return chatUI(pg);
+  if(tab==="settings")return settingsUI(pg);
+  const name=TABS.find(t=>t[0]===tab)[2];
+  pg.innerHTML="<h2>"+name+"</h2><p class='sub'>"+SUBS[tab]+"</p>";
+  const s=document.createElement("input");s.className="search";s.placeholder="Search "+name.toLowerCase()+"...";pg.appendChild(s);
+  const w=document.createElement("div");w.className="cards";pg.appendChild(w);
+  const em=document.createElement("div");em.className="empty";em.textContent="Nothing here yet.";pg.appendChild(em);
+  const draw=q=>{
+    w.innerHTML="";const f=LINKS[tab].filter(i=>i.name.toLowerCase().includes(q.toLowerCase()));
+    f.forEach((i,n)=>{
+      const d=document.createElement("button");d.className="item";d.style.setProperty("--i",n);
+      const e=document.createElement("div");e.className="e";e.textContent=i.emoji;
+      const t=document.createElement("span");t.className="n";t.textContent=i.name;d.append(e,t);
+      d.onmousemove=ev=>{const r=d.getBoundingClientRect();d.style.setProperty("--mx",(ev.clientX-r.left)+"px");d.style.setProperty("--my",(ev.clientY-r.top)+"px")};
+      d.onclick=()=>{if(store.get("hubOpen","frame")==="tab")window.open(i.url,"_blank","noopener");else openP(i)};w.appendChild(d)});
+    em.style.display=f.length?"none":"block";
+  };
+  s.oninput=()=>draw(s.value);draw("");
+}
+let curUrl="";
+function openP(i){curUrl=i.url;$("pTitle").textContent=i.name;$("frame").src=i.url;$("player").classList.add("on")}
+function closePlayer(){$("player").classList.remove("on");setTimeout(()=>{if(!$("player").classList.contains("on"))$("frame").src="about:blank"},450)}
+$("closeP").onclick=closePlayer;$("newTab").onclick=()=>window.open(curUrl,"_blank","noopener");
+
+function settingsUI(pg){
+  pg.innerHTML="<h2>Settings</h2><p class='sub'>Make it yours.</p>";
+  const th=document.createElement("div");th.className="set";th.innerHTML="<h3>Theme</h3>";
+  const sw=document.createElement("div");sw.className="sw";
+  [["light","Light","linear-gradient(135deg,#fff,#cfd8ff)"],["dark","Dark","linear-gradient(135deg,#2a3042,#0d0f14)"],["red","Red","linear-gradient(135deg,#ff3b4e,#ff7a45)"],["orange","Orange","linear-gradient(135deg,#ff9500,#ffcc33)"]].forEach(([id,l,g])=>{
+    const b=document.createElement("button");b.className=id===root.dataset.theme?"act":"";b.innerHTML="<i style='background:"+g+"'></i>"+l;
+    b.onclick=()=>{root.dataset.theme=id;store.set("hubTheme",id);sw.querySelectorAll("button").forEach(x=>x.classList.remove("act"));b.classList.add("act")};sw.appendChild(b)});
+  th.appendChild(sw);pg.appendChild(th);
+  const an=document.createElement("div");an.className="set";an.innerHTML="<h3>Animations</h3>";
+  const sg=document.createElement("div");sg.className="seg";
+  [["full","Full"],["reduced","Subtle"],["off","Off"]].forEach(([id,l])=>{
+    const b=document.createElement("button");b.textContent=l;b.className=id===root.dataset.anim?"act":"";
+    b.onclick=()=>{root.dataset.anim=id;store.set("hubAnim",id);sg.querySelectorAll("button").forEach(x=>x.classList.remove("act"));b.classList.add("act")};sg.appendChild(b)});
+  an.appendChild(sg);pg.appendChild(an);
+  const op2=document.createElement("div");op2.className="set";op2.innerHTML="<h3>Open links</h3>";
+  const sg2=document.createElement("div");sg2.className="seg";
+  [["frame","Inside page"],["tab","New tab"]].forEach(([id,l])=>{const b=document.createElement("button");b.textContent=l;b.className=id===store.get("hubOpen","frame")?"act":"";
+    b.onclick=()=>{store.set("hubOpen",id);sg2.querySelectorAll("button").forEach(x=>x.classList.remove("act"));b.classList.add("act")};sg2.appendChild(b)});
+  op2.appendChild(sg2);pg.appendChild(op2);
+  const tip=document.createElement("div");tip.className="set";tip.innerHTML="<h3>Tips</h3><p class='sub' style='margin:0'>Press the backtick key ( ` ) or tap Lock to jump back to the calculator.</p>";pg.appendChild(tip);
+}
+
+/* Chat (ntfy.sh, free, no account) */
+let myId=store.get("hubUid","");
+if(!myId){myId="u"+Math.random().toString(36).slice(2,10);store.set("hubUid",myId)}
+let es=null;
+function chatUI(pg){
+  pg.innerHTML="<h2>Chat</h2><div class='on-line'><span class='dot'></span><span id='online'>Connecting...</span></div><div class='chat'><div id='msgs'></div><div class='send'><input class='search nm' id='nm' placeholder='Name' maxlength='20'><input class='search' id='txt' placeholder='Message...' maxlength='300'><button class='go' id='go'>Send</button></div></div>";
+  $("nm").value=store.get("hubName","");$("nm").oninput=()=>store.set("hubName",$("nm").value.trim());
+  const send=async()=>{const t=$("txt").value.trim();if(!t)return;$("txt").value="";
+    const body=JSON.stringify({n:($("nm").value.trim()||"Guest").slice(0,20),t:t.slice(0,300),u:myId});
+    try{await fetch("https://ntfy.sh/"+CHAT_TOPIC,{method:"POST",body})}catch(e){console.error(e)}};
+  $("go").onclick=send;$("txt").onkeydown=e=>{if(e.key==="Enter")send()};connect();
+}
+function addMsg(m){
+  const b=$("msgs");if(!b)return;
+  const d=document.createElement("div");d.className="m"+(m.u===myId?" me":"");
+  const n=document.createElement("b");n.textContent=m.n||"Guest";d.append(n,document.createTextNode(m.t||""));
+  const stick=b.scrollHeight-b.scrollTop-b.clientHeight<80;b.appendChild(d);if(stick||m.u===myId)b.scrollTop=b.scrollHeight;
+}
+function connect(){
+  if(es)es.close();
+  const seen=new Set();
+  es=new EventSource("https://ntfy.sh/"+CHAT_TOPIC+"/sse?since=12h");
+  es.onopen=()=>{const o=$("online");if(o)o.textContent="Connected"};
+  es.onerror=()=>{const o=$("online");if(o)o.textContent="Reconnecting..."};
+  es.onmessage=ev=>{try{const x=JSON.parse(ev.data);if(x.event!=="message"||seen.has(x.id))return;seen.add(x.id);addMsg(JSON.parse(x.message))}catch(e){}};
+}
+</script>
+</body>
+</html>
