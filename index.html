@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-anim="full">
+<html lang="en" data-theme="dark" data-anim="full" data-style="liquid">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -108,6 +108,44 @@ h2{margin:0 0 4px;font-size:2rem;letter-spacing:-.8px}
  h2{font-size:1.6rem}
  .chat{height:calc(100vh - 230px)}
 }
+
+/* intro splash */
+#intro{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,var(--bg2),var(--bg) 70%);visibility:hidden;opacity:0;overflow:hidden;text-align:center;padding:20px;cursor:pointer;transition:opacity calc(var(--t)*700ms) ease,transform calc(var(--t)*800ms) cubic-bezier(.2,.8,.2,1),visibility 0s linear calc(var(--t)*800ms)}
+#intro.on{visibility:visible;opacity:1;transition:opacity calc(var(--t)*600ms) ease}
+#intro.on.leave{opacity:0;transform:scale(1.12);filter:blur(10px);transition:opacity calc(var(--t)*700ms) ease,transform calc(var(--t)*800ms) cubic-bezier(.2,.8,.2,1),filter calc(var(--t)*700ms)}
+.ilogo{position:relative;z-index:2;font-size:clamp(3rem,13vw,9rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;filter:drop-shadow(0 0 28px color-mix(in srgb,var(--ac) 55%,transparent))}
+.ilogo span{display:inline-block;opacity:0;background:linear-gradient(120deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#intro.on .ilogo span{animation:letter calc(var(--t)*900ms) cubic-bezier(.2,.9,.2,1) forwards;animation-delay:calc(var(--k)*var(--t)*70ms + var(--t)*250ms)}
+@keyframes letter{from{opacity:0;transform:translateY(60px) scale(.7) rotate(6deg);filter:blur(14px)}to{opacity:1;transform:none;filter:blur(0)}}
+.isub{position:relative;z-index:2;margin-top:18px;font-size:clamp(.85rem,2.6vw,1.4rem);color:var(--sub);letter-spacing:.32em;text-transform:uppercase;font-weight:600;opacity:0}
+#intro.on .isub{animation:fadeup calc(var(--t)*1000ms) ease forwards;animation-delay:calc(var(--t)*1100ms)}
+@keyframes fadeup{from{opacity:0;transform:translateY(16px);letter-spacing:.7em}to{opacity:1;transform:none;letter-spacing:.32em}}
+.orb{position:absolute;z-index:1;width:min(72vmin,540px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.4),transparent 38%),linear-gradient(135deg,color-mix(in srgb,var(--ac) 55%,transparent),color-mix(in srgb,var(--ac2) 45%,transparent));-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:inset 8px 10px 24px rgba(255,255,255,.35),inset -12px -16px 36px rgba(0,0,0,.28),0 40px 90px -24px var(--ac);opacity:0;transform:scale(.4)}
+#intro.on .orb{animation:orbin calc(var(--t)*1400ms) cubic-bezier(.2,.9,.2,1) forwards,orb calc(var(--t)*7s) ease-in-out calc(var(--t)*1.4s) infinite alternate}
+@keyframes orbin{to{opacity:.9;transform:scale(1)}}
+@keyframes orb{to{border-radius:58% 42% 46% 54%/46% 56% 44% 54%;transform:scale(1.07) rotate(14deg)}}
+html[data-style=classic] .orb{display:none}
+/* fullscreen / game-only player */
+.bar{flex-wrap:wrap}
+#peek{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;z-index:5;display:none;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;opacity:.3;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:opacity .2s}
+#peek:hover{opacity:1}
+#player.clean{padding-top:0}
+#player.clean .bar{display:none}
+#player.clean #peek{display:block}
+/* Liquid glass style */
+@keyframes float2{to{transform:translate(8vmax,6vmax) scale(1.25) rotate(40deg);border-radius:62% 38% 46% 54%/50% 60% 40% 50%}}
+@keyframes blobmorph{50%{border-radius:42% 58% 38% 62%/58% 40% 60% 42%}}
+html[data-style=liquid] .blobs i{opacity:.5;animation-name:float2}
+html[data-style=liquid] aside,html[data-style=liquid] .item,html[data-style=liquid] .set,html[data-style=liquid] #msgs,html[data-style=liquid] .search,html[data-style=liquid] .seg,html[data-style=liquid] .pill{background:linear-gradient(135deg,rgba(255,255,255,.17),rgba(255,255,255,.04));-webkit-backdrop-filter:blur(30px) saturate(1.9) brightness(1.08);backdrop-filter:blur(30px) saturate(1.9) brightness(1.08);border:1px solid rgba(255,255,255,.2);box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.4),inset -1px -1px 0 rgba(255,255,255,.08),0 14px 40px -14px rgba(0,0,0,.5)}
+html[data-style=liquid][data-theme=light] aside,html[data-style=liquid][data-theme=light] .item,html[data-style=liquid][data-theme=light] .set,html[data-style=liquid][data-theme=light] #msgs,html[data-style=liquid][data-theme=light] .search,html[data-style=liquid][data-theme=light] .seg,html[data-style=liquid][data-theme=light] .pill{background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(255,255,255,.4));border:1px solid rgba(255,255,255,.9);box-shadow:inset 1.5px 1.5px 0 #fff,0 14px 36px -14px rgba(40,60,120,.35)}
+html[data-style=liquid] .item::after{content:"";position:absolute;inset:-60% -30%;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.4) 50%,transparent 58%);transform:translateX(-70%);transition:transform calc(var(--t)*1000ms) cubic-bezier(.2,.8,.2,1);pointer-events:none}
+html[data-style=liquid] .item:hover::after{transform:translateX(70%)}
+html[data-style=liquid] .item{transition:transform calc(var(--t)*600ms) cubic-bezier(.3,1.5,.5,1),border-radius calc(var(--t)*700ms) cubic-bezier(.3,1.5,.5,1),box-shadow calc(var(--t)*400ms)}
+html[data-style=liquid] .item:hover{border-radius:38px 16px 38px 16px;transform:translateY(-10px) scale(1.05)}
+html[data-style=liquid] .item .e{animation:blobmorph calc(var(--t)*7s) ease-in-out infinite;box-shadow:inset 2px 3px 8px rgba(255,255,255,.5),inset -3px -4px 10px rgba(0,0,0,.2),0 12px 26px -10px var(--ac)}
+html[data-style=liquid] .tab.act{box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.5),inset -2px -3px 8px rgba(0,0,0,.18),0 10px 28px -8px var(--ac);animation:blobmorph calc(var(--t)*6s) ease-in-out infinite}
+html[data-style=liquid] .go,html[data-style=liquid] .seg button.act{box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.5),inset -2px -3px 8px rgba(0,0,0,.18)}
+html[data-style=liquid] .m{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 </style>
 </head>
 <body>
@@ -120,7 +158,9 @@ h2{margin:0 0 4px;font-size:2rem;letter-spacing:-.8px}
   <main id="view"></main>
 </div>
 
-<div id="player"><div class="bar"><button class="pill" id="closeP">← Back</button><b id="pTitle"></b><button class="pill" id="newTab">Open in new tab</button></div><iframe id="frame" allow="fullscreen; gamepad; autoplay; clipboard-write" allowfullscreen></iframe></div>
+<div id="intro"><div class="orb"></div><div class="ilogo" id="ilogo"></div><div class="isub">Gaming is for everybody</div></div>
+
+<div id="player"><div class="bar"><button class="pill" id="closeP">← Back</button><b id="pTitle"></b><button class="pill" id="fsBtn">⛶ Fullscreen</button><button class="pill" id="cleanBtn">Game only</button><button class="pill" id="newTab">New tab</button></div><button id="peek" title="Show menu">☰</button><iframe id="frame" allow="fullscreen; gamepad; autoplay; clipboard-write" allowfullscreen></iframe></div>
 
 <script>
 /* ======= CHAT ROOM NAME (anyone with this name can join; change it to make a new room) ======= */
@@ -128,14 +168,17 @@ const CHAT_TOPIC = "gametime-f9adfbc1aae679cd";
 /* ======= EDIT YOUR LINKS HERE ======= */
 const LINKS = {
   games: [
-    {name:"1v1.LOL", emoji:"🔫", url:"https://1v1-lol-online.vercel.app/"},
-    {name:"Geometry Dash", emoji:"🔷", url:"https://geometry-dash-unbanned.github.io/"},
+    {name:"Geometry Dash", emoji:"🔷", url:"https://gd-webport.pages.dev/"},
     {name:"Drive Mad", emoji:"🚗", url:"https://ducky443747.github.io/games/DriveMad/"},
-    {name:"FNAF", emoji:"🐻", url:"https://fivenightsatfreddysgame.io/"},
-    {name:"FNAF 2", emoji:"🎭", url:"https://fivenightsatfreddysgame.io/five-nights-at-freddys-2"},
-    {name:"FNAF 3", emoji:"🐰", url:"https://fivenightsatfreddysgame.io/five-nights-at-freddys-3"},
-    {name:"FNAF 4", emoji:"🌙", url:"https://fivenightsatfreddysgame.io/five-nights-at-freddys-4"},
-    {name:"Cookie Clicker", emoji:"🍪", url:"https://cookieclickerplay.github.io/"}
+    {name:"FNAF", emoji:"🐻", url:"https://irv77.github.io/hd_fnaf/1/"},
+    {name:"FNAF 2", emoji:"🎭", url:"https://irv77.github.io/hd_fnaf/2/"},
+    {name:"FNAF 3", emoji:"🐰", url:"https://irv77.github.io/hd_fnaf/3/"},
+    {name:"FNAF 4", emoji:"🌙", url:"https://irv77.github.io/hd_fnaf/4/"},
+    {name:"FNAF World", emoji:"🌍", url:"https://irv77.github.io/hd_fnaf/w/"},
+    {name:"FNAF Sister Location", emoji:"🎪", url:"https://irv77.github.io/hd_fnaf/sl/"},
+    {name:"FNAF Pizzeria Sim", emoji:"🍕", url:"https://irv77.github.io/hd_fnaf/ps/"},
+    {name:"FNAF UCN", emoji:"🔥", url:"https://irv77.github.io/hd_fnaf/ucn/"},
+    {name:"Cookie Clicker", emoji:"🍪", url:"https://orteil.dashnet.org/cookieclicker/"}
   ],
   shows: [
     {name:"Cinera", emoji:"🎬", url:"https://cinera.marginaltax.com/"}
@@ -143,7 +186,7 @@ const LINKS = {
   proxies: [
     {name:"Truffled", emoji:"🍄‍🟫", url:"https://cdn.jsdelivr.net/gh/obamamegagon/linkmaker@main/truffled.svg?1#home"},
     {name:"Fern", emoji:"🌿", url:"https://s3.amazonaws.com/angelfern/index.html"},
-    {name:"Dogeub", emoji:"🐕", url:"https://storage.googleapis.com/canvas-lms/index.html"},
+    {name:"Dogeub", emoji:"🐕", url:"https://storage.googleapis.com/canvas-lms/index.html"}
   ],
   other: [
     {name:"Nexora", emoji:"✨", url:"https://noterplus-157.firebaseapp.com/"}
@@ -154,6 +197,7 @@ const $=id=>document.getElementById(id), root=document.documentElement;
 const store={get(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 root.dataset.theme=store.get("hubTheme","dark");
 root.dataset.anim=store.get("hubAnim","full");
+root.dataset.style=store.get("hubStyle","liquid");
 
 /* Calculator: 0 four times in a row unlocks */
 let cur="0",prev=null,op=null,fresh=false,zr=0;
@@ -175,6 +219,7 @@ function press(k){
   $("out").style.fontSize=cur.length>9?"2.4rem":cur.length>6?"3.2rem":"";
 }
 addEventListener("keydown",e=>{
+  if($("intro").classList.contains("on"))return;
   if($("hub").classList.contains("on")){if(e.key==="`")lock();return}
   if(/^[0-9.]$/.test(e.key))press(e.key);else if(e.key==="Enter")press("=");else if(e.key==="Escape")press("C");
   else if("+*/".includes(e.key))press({"+":"+","*":"×","/":"÷"}[e.key]);else if(e.key==="-")press("−");
@@ -184,8 +229,17 @@ addEventListener("keydown",e=>{
 const TABS=[["games","🎮","Games"],["shows","📺","Movies & Shows"],["proxies","🌐","Proxies"],["other","✨","Other"],["chat","💬","Chat"],["settings","⚙️","Settings"]];
 const SUBS={games:"Pick something and play.",shows:"Movies and things to watch.",proxies:"Alternate routes.",other:"Everything else."};
 let tab="games";
-function unlock(){$("calc").classList.add("out");$("hub").classList.add("on");document.title="GameTime";render()}
-function lock(){closePlayer();$("hub").classList.remove("on");$("calc").classList.remove("out");document.title="Calculator";cur="0";prev=op=null;$("out").textContent="0";$("hist").textContent=""}
+let introT=null;
+$("ilogo").innerHTML="GameTime".split("").map((c,k)=>'<span style="--k:'+k+'">'+c+'</span>').join("");
+function unlock(){
+  $("calc").classList.add("out");document.title="GameTime";
+  const d={full:3400,reduced:1900,off:0}[root.dataset.anim]??3400, it=$("intro");
+  if(!d){$("hub").classList.add("on");render();return}
+  it.classList.remove("leave");it.classList.add("on");
+  const go=()=>{clearTimeout(introT);if(!it.classList.contains("on")||it.classList.contains("leave"))return;it.classList.add("leave");$("hub").classList.add("on");render();setTimeout(()=>it.classList.remove("on","leave"),1000)};
+  it.onclick=go;introT=setTimeout(go,d);
+}
+function lock(){clearTimeout(introT);$("intro").classList.remove("on","leave");closePlayer();$("hub").classList.remove("on");$("calc").classList.remove("out");document.title="Calculator";cur="0";prev=op=null;$("out").textContent="0";$("hist").textContent=""}
 function tabs(){
   $("tabs").innerHTML="";
   TABS.forEach(([id,ic,l])=>{const b=document.createElement("button");b.className="tab"+(id===tab?" act":"");b.innerHTML='<span class="ic">'+ic+'</span>'+l;b.onclick=()=>{tab=id;render()};$("tabs").appendChild(b)});
@@ -214,8 +268,11 @@ function render(){
 }
 let curUrl="";
 function openP(i){curUrl=i.url;$("pTitle").textContent=i.name;$("frame").src=i.url;$("player").classList.add("on")}
-function closePlayer(){$("player").classList.remove("on");setTimeout(()=>{if(!$("player").classList.contains("on"))$("frame").src="about:blank"},450)}
-$("closeP").onclick=closePlayer;$("newTab").onclick=()=>window.open(curUrl,"_blank","noopener");
+function closePlayer(){$("player").classList.remove("on");setTimeout(()=>{if(!$("player").classList.contains("on")){$("frame").src="about:blank";$("player").classList.remove("clean")}},450)}
+$("closeP").onclick=closePlayer;
+$("fsBtn").onclick=()=>{const f=$("frame"),r=f.requestFullscreen||f.webkitRequestFullscreen;if(r)r.call(f)};
+$("cleanBtn").onclick=()=>$("player").classList.add("clean");
+$("peek").onclick=()=>$("player").classList.remove("clean");$("newTab").onclick=()=>window.open(curUrl,"_blank","noopener");
 
 function settingsUI(pg){
   pg.innerHTML="<h2>Settings</h2><p class='sub'>Make it yours.</p>";
@@ -231,6 +288,11 @@ function settingsUI(pg){
     const b=document.createElement("button");b.textContent=l;b.className=id===root.dataset.anim?"act":"";
     b.onclick=()=>{root.dataset.anim=id;store.set("hubAnim",id);sg.querySelectorAll("button").forEach(x=>x.classList.remove("act"));b.classList.add("act")};sg.appendChild(b)});
   an.appendChild(sg);pg.appendChild(an);
+  const st=document.createElement("div");st.className="set";st.innerHTML="<h3>Animation style</h3>";
+  const sg3=document.createElement("div");sg3.className="seg";
+  [["liquid","Liquid Glass"],["classic","Classic"]].forEach(([id,l])=>{const b=document.createElement("button");b.textContent=l;b.className=id===root.dataset.style?"act":"";
+    b.onclick=()=>{root.dataset.style=id;store.set("hubStyle",id);sg3.querySelectorAll("button").forEach(x=>x.classList.remove("act"));b.classList.add("act")};sg3.appendChild(b)});
+  st.appendChild(sg3);pg.appendChild(st);
   const op2=document.createElement("div");op2.className="set";op2.innerHTML="<h3>Open links</h3>";
   const sg2=document.createElement("div");sg2.className="seg";
   [["frame","Inside page"],["tab","New tab"]].forEach(([id,l])=>{const b=document.createElement("button");b.textContent=l;b.className=id===store.get("hubOpen","frame")?"act":"";
